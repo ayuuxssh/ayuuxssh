@@ -18,7 +18,23 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - name: generate trophy.svg
+      - name: generate trophy.svg (attempt 1)
+        id: generate_trophy_first_attempt
+        continue-on-error: true
+        uses: Erik-Donath/github-profile-trophy@feature/generate-svg
+        with:
+          username: ${{ github.repository_owner }}
+          file: dist/trophy.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+          theme: dracula
+          max-rows: 1
+          margin-width: 8
+          margin-height: 8
+          no-background: false
+          no-frame: false
+
+      - name: generate trophy.svg (retry)
+        if: steps.generate_trophy_first_attempt.outcome == 'failure'
         uses: Erik-Donath/github-profile-trophy@feature/generate-svg
         with:
           username: ${{ github.repository_owner }}
