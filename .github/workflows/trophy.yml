@@ -1,14 +1,13 @@
 name: Generate trophy card
 
 on:
-  schedule: # execute every 12 hours
-    - cron: "* */12 * * *"
-
+  schedule:
+    # Executes once every 12 hours (at 00:00 and 12:00 UTC)
+    - cron: "0 */12 * * *"
   workflow_dispatch:
-
   push:
     branches:
-    - main
+      - main
 
 jobs:
   generate:
@@ -16,9 +15,14 @@ jobs:
       contents: write
     runs-on: ubuntu-latest
     timeout-minutes: 5
-
     steps:
-      - name: generate trophy.svg (attempt 1)
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Ensure output directory exists
+        run: mkdir -p dist
+
+      - name: Generate trophy.svg (attempt 1)
         id: generate_trophy_first_attempt
         continue-on-error: true
         uses: Erik-Donath/github-profile-trophy@feature/generate-svg
@@ -33,7 +37,7 @@ jobs:
           no-background: false
           no-frame: false
 
-      - name: generate trophy.svg (retry)
+      - name: Generate trophy.svg (retry)
         if: steps.generate_trophy_first_attempt.outcome == 'failure'
         uses: Erik-Donath/github-profile-trophy@feature/generate-svg
         with:
@@ -47,8 +51,8 @@ jobs:
           no-background: false
           no-frame: false
 
-      - name: push trophy.svg to the output branch
-        uses: crazy-max/ghaction-github-pages@v3.1.0
+      - name: Push trophy.svg to output branch
+        uses: crazy-max/ghaction-github-pages@v4
         with:
           target_branch: trophy-output
           build_dir: dist
