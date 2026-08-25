@@ -1,60 +1,16 @@
-name: Generate trophy card
-
-on:
-  schedule:
-    # Executes once every 12 hours (at 00:00 and 12:00 UTC)
-    - cron: "0 */12 * * *"
-  workflow_dispatch:
-  push:
-    branches:
-      - main
-
-jobs:
-  generate:
-    permissions:
-      contents: write
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Ensure output directory exists
-        run: mkdir -p dist
-
       - name: Generate trophy.svg (attempt 1)
         id: generate_trophy_first_attempt
         continue-on-error: true
         uses: Erik-Donath/github-profile-trophy@feature/generate-svg
         with:
           username: ${{ github.repository_owner }}
-          file: dist/trophy.svg
+          output_path: dist/trophy.svg
           token: ${{ secrets.GITHUB_TOKEN }}
-          theme: dracula
-          max-rows: 1
-          margin-width: 8
-          margin-height: 8
-          no-background: false
-          no-frame: false
 
       - name: Generate trophy.svg (retry)
         if: steps.generate_trophy_first_attempt.outcome == 'failure'
         uses: Erik-Donath/github-profile-trophy@feature/generate-svg
         with:
           username: ${{ github.repository_owner }}
-          file: dist/trophy.svg
+          output_path: dist/trophy.svg
           token: ${{ secrets.GITHUB_TOKEN }}
-          theme: dracula
-          max-rows: 1
-          margin-width: 8
-          margin-height: 8
-          no-background: false
-          no-frame: false
-
-      - name: Push trophy.svg to output branch
-        uses: crazy-max/ghaction-github-pages@v4
-        with:
-          target_branch: trophy-output
-          build_dir: dist
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
